@@ -6,6 +6,13 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """ Description: Perform an ETL process for songs and artists tables
+        
+        Arguments:
+        cur: the cursor object. 
+        filepath: song data file path.
+    """
+    
     # open song file
     df = pd.read_json(filepath, typ='series')
 
@@ -19,6 +26,15 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """
+        Description: Perform ETL on the second dataset, log_data, to create the time and users dimensional tables, 
+        as well as the songplays fact table.
+        
+        Arguments:
+        cur: the cursor object. 
+        filepath: log data file path.
+    """
+    
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -56,11 +72,22 @@ def process_log_file(cur, filepath):
             songid, artistid = None, None
 
         # insert songplay record
+#         songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         songplay_data = (pd.Timestamp(row.ts), row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    Description: Read and process all files to be accessed by the Database
+    
+    Arguments:
+        cur: the cursor object. 
+        conn: connection to Database.
+        filepath: data file path.
+        func: refers to process functions.
+    """
+    
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
